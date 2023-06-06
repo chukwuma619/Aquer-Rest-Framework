@@ -31,7 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(unique=True, max_length=150)
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=150)
-    amount_deposited = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    amount_deposited = models.DecimalField(max_digits=6, decimal_places=2, default=0.00, blank=True)
     profile_pics = models.ImageField(upload_to="images/profile_pics", max_length=200, blank=True)
     address = models.CharField(max_length=250, blank=True)
     phone_number = models.CharField(max_length=50, blank=True)
