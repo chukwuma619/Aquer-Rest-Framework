@@ -169,7 +169,8 @@ class UserLogin(APIView):
                 )
             if user is not None:
                 login(request, user)
-                return Response({'message': 'login successful'}, status=status.HTTP_202_ACCEPTED)
+                return Response({'message': 'login successful', 
+                                 'user': request.user}, status=status.HTTP_202_ACCEPTED)
             else:
                 return Response({'message': "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
