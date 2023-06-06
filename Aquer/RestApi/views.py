@@ -140,7 +140,6 @@ class ProductDetail(APIView):
 
 class UserRegistration(APIView):
     permission_classes = [~IsAuthenticated]
-    parser_classes = [FormParser, MultiPartParser]
     def post(self, request, format=None):
         print(request.data)
         serializer = UserSerializers(data=request.data)
