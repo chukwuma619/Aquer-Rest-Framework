@@ -141,9 +141,7 @@ class ProductDetail(APIView):
 class UserRegistration(APIView):
     permission_classes = [~IsAuthenticated]
     def post(self, request, format=None):
-        print(request.data)
         serializer = UserSerializers(data=request.data)
-        print(serializer)
         if serializer.is_valid():
             serialized_user = serializer.save()
             user = authenticate(
@@ -153,7 +151,8 @@ class UserRegistration(APIView):
             
             if user is not None:
                 login(request, user)
-            return Response({'message': 'Registration successful'}, status=status.HTTP_202_ACCEPTED)
+            return Response({'message': 'Registration successful',
+                             "userId": serialized_user.id}, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -169,8 +168,7 @@ class UserLogin(APIView):
                 )
             if user is not None:
                 login(request, user)
-                return Response({'message': 'login successful', 
-                                 'user': request.user}, status=status.HTTP_202_ACCEPTED)
+                return Response({'message': 'login successful'}, status=status.HTTP_202_ACCEPTED)
             else:
                 return Response({'message': "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
