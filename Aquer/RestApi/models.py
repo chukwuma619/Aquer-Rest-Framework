@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 # Create your models here.
 
@@ -38,16 +42,23 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
-
+    
+    @receiver(post_save, sender=settings.AUTH_USER_MODEL)
+    def create_auth_token(sender, instance=None, created=False, **kwargs):
+        if created:
+            Token.objects.create(user=instance)
 
     USERNAME_FIELD = 'username'
 
     objects = UserManager()
 
-
 class Category(models.Model):
     name = models.CharField(max_length=250)
     image = models.ImageField(upload_to="images/categories")
+
+    class Meta:
+       verbose_name_plural = "categories"
+
 
 
 
@@ -60,6 +71,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    
     class Meta:
         ordering = ["name", 'date_created']
 
@@ -69,6 +81,7 @@ class FundAccount(models.Model):
     amount = models.DecimalField(max_digits=6, decimal_places=2)
     date_funded = models.DateTimeField()
     status = models.CharField(max_length=150)
+    
 
 
 class ProductPayment(models.Model):

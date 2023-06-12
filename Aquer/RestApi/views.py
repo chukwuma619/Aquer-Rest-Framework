@@ -1,6 +1,6 @@
 from rest_framework import status
 from .models import User, Category, Product
-from .serializers import UserSerializers, LoginSerializer, ProductSerializer, CategorySerializer
+from .serializers import UserSerializers, ProductSerializer, CategorySerializer
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from dj_rest_auth.registration.views import RegisterView
 
 
 
@@ -138,45 +139,8 @@ class ProductDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserRegistration(APIView):
-    permission_classes = [~IsAuthenticated]
-    def post(self, request, format=None):
-        serializer = UserSerializers(data=request.data)
-        if serializer.is_valid():
-            serialized_user = serializer.save()
-            user = authenticate(
-                username= serialized_user.username,
-                password = request.data.get('password')
-                )
-            
-            if user is not None:
-                login(request, user)
-            return Response({'message': 'Registration successful',
-                             "userId": serialized_user.id}, status=status.HTTP_202_ACCEPTED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserLogin(APIView):
-    def post(self, request, format=None):
-        serializer = LoginSerializer(data=request.data)
-        print(serializer)
-        if serializer.is_valid():
-            serialized_user = serializer.save()
-            user = authenticate(
-                username=serialized_user.validated_data['username'],
-                password = serialized_user.validated_data['password']
-                )
-            if user is not None:
-                login(request, user)
-                return Response({'message': 'login successful'}, status=status.HTTP_202_ACCEPTED)
-            else:
-                return Response({'message': "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-class LogoutUser(APIView):
-
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        logout(request)
-        return Response({'message': 'logout successful'}, status=status.HTTP_202_ACCEPTED)
+class UserRegistration(RegisterView):
+   def perform_create(self, serializer):
+       user = serializer.save(self.request)
+       user.is_active = True  # Activate the user immediately
+       user.save()

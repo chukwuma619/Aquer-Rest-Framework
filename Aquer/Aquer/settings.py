@@ -35,6 +35,12 @@ REST_FRAMEWORK = {
     ],
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -58,10 +64,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     'rest_framework',
+    'rest_framework.authtoken',
+    
     "RestApi",
+    
     'corsheaders',
+    
+    'allauth',
+    'allauth.account',
+
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
 ]
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'RestApi.serializers.CustomRegisterSerializer',
+}
+
+
+SITE_ID = 1
 
 CORS_ALLOW_ALL_ORIGINS = True
 
